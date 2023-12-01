@@ -238,6 +238,10 @@ class MinesweeperAI():
                 synthesis = Sentence(fact.cells - sentence.cells, fact.count - sentence.count)
                 new_knowledge.append(synthesis)
 
+            if fact.cells.issubset(sentence.cells):
+                synthesis = Sentence(sentence.cells - fact.cells, sentence.count - fact.count)
+                new_knowledge.append(synthesis)
+
         self.knowledge.extend(new_knowledge)
 
         for fact in self.knowledge:
