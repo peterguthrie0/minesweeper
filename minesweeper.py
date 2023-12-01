@@ -216,7 +216,6 @@ class MinesweeperAI():
 
         # Create a sentence object and add it to the knowledge list
         sentence = Sentence(neighbors, count)
-        self.knowledge.append(sentence)
 
         """
         Each time we add a sentence, we loop it over every existing sentence.
@@ -234,15 +233,32 @@ class MinesweeperAI():
         new_knowledge = []
         
         for fact in self.knowledge:
-            if sentence.cells.issubset(fact.cells):
+            if sentence.cells.issubset(fact.cells) and sentence.cells != fact.cells:
                 synthesis = Sentence(fact.cells - sentence.cells, fact.count - sentence.count)
-                new_knowledge.append(synthesis)
+                if synthesis not in new_knowledge and synthesis.cells != sentence.cells:
+                    new_knowledge.append(synthesis)
 
-            if fact.cells.issubset(sentence.cells):
+            if fact.cells.issubset(sentence.cells) and sentence.cells != fact.cells:
                 synthesis = Sentence(sentence.cells - fact.cells, sentence.count - fact.count)
-                new_knowledge.append(synthesis)
+                if synthesis not in new_knowledge and synthesis.cells != sentence.cells:
+                    new_knowledge.append(synthesis)
 
-        self.knowledge.extend(new_knowledge)
+        
+        if len(new_knowledge) > 0:
+            self.knowledge.extend(new_knowledge)
+
+        # After we're done looping over the knowledge base to look for inferences,
+        # we can finally add our sentence to the knowledge base.
+        self.knowledge.append(sentence)
+
+        """ Print statements for debugging
+        print("New knowledge: ")
+        for statement in new_knowledge:
+            print(statement)
+        print("Knowledge base: ")
+        for statement in self.knowledge:
+            print(statement)
+        End debugging """
 
         for fact in self.knowledge:
             # Check whether we can infer any mines from the sentence
@@ -263,6 +279,14 @@ class MinesweeperAI():
 
         for new_safe in new_safes:
             self.mark_safe(new_safe)
+
+        """
+        
+        print(f" Safe spots: ")
+        for safe in self.safes:
+            print(safe)
+
+        """
 
     def make_safe_move(self):
         """
